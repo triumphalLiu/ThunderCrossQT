@@ -2,11 +2,13 @@
 #define WIDGET_H
 
 #include <QWidget>
-#include <Qdebug>
+#include <QDebug>
 #include <QEvent>
 #include <QImage>
 #include <QLabel>
 #include <QPixmap>
+#include <QPainter>
+#include <QRect>
 #include <QSound>
 #include <QMessageBox>
 #include <QWidget>
@@ -41,9 +43,12 @@ private:
     QImage *sndoffImg;
     QSound *sound;
     bool soundState;
+    QRect *HeroLoc = NULL;
+    QPixmap *Hero = NULL;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
+    void paintEvent(QPaintEvent *);
 };
 
 #endif // WIDGET_H

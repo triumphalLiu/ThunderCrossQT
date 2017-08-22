@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <windows.h>
+#include "plane.h"
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -13,7 +14,7 @@ Widget::Widget(QWidget *parent) :
     //加载图片
     loadPictures();
     //加载声音
-    sound = new QSound("res/music.wav", this);
+    sound = new QSound(""/*"res/music.wav"*/, this);
     sound->play();
     soundState = 1;
     //加载label响应动作
@@ -55,6 +56,7 @@ void Widget::loadPictures()
 
 void Widget::startGame()
 {
+    ui->background_label->clear();
     ui->title_label_1->clear();
     ui->title_label_2->clear();
     ui->start_label->clear();
@@ -134,8 +136,19 @@ bool Widget::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
+void Widget::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    if(this->HeroLoc == NULL || this->Hero == NULL) return;
+    painter.drawPixmap(this->HeroLoc->x(),this->HeroLoc->y(),
+                       this->HeroLoc->width(),this->HeroLoc->height(), *this->Hero);
+}
+
 void Widget::play()
 {
+    plane Plane(400, 800);
+    this->HeroLoc = Plane.MyLoc;
+    this->Hero = Plane.MyPlane;
     MSG msg;
     while (1)
     {
@@ -152,13 +165,20 @@ void Widget::play()
                 case 'A':
                 case 'W':
                 case 'D':
-                case 'S':break;
-                case 'P':pauseGame();break;
+                case 'S':Plane.move(key);
+                         break;
+                case 'P':pauseGame();
+                         break;
                 default: break;
                 }
             }
+            repaint();
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        }
+        else
+        {
+
         }
     }
     returnMainpage();
