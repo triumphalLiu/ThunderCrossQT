@@ -27,11 +27,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         widget.cpp \
-    plane.cpp
+    plane.cpp \
+    ememy.cpp
 
 HEADERS += \
         widget.h \
-    plane.h
+    plane.h \
+    enemy.h \
+    common.h
 
 FORMS += \
         widget.ui

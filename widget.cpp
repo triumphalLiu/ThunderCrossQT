@@ -2,6 +2,14 @@
 #include "ui_widget.h"
 #include <windows.h>
 #include "plane.h"
+#include "enemy.h"
+#include <ctime>
+#include <cstdlib>
+#include <cstring>
+#include <QMessageBox>
+
+plane Plane;
+enemy Enemy;
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -80,6 +88,7 @@ void Widget::exitGame()
 
 void Widget::pauseGame()
 {
+    pauseState = 1;
     ui->pause_label->setPixmap(QPixmap::fromImage(*pauseImg));
     MSG msg;
     while (1)
@@ -99,6 +108,7 @@ void Widget::pauseGame()
         }
     }
     ui->pause_label->clear();
+    pauseState = 0;
     return;
 }
 
@@ -139,16 +149,32 @@ bool Widget::eventFilter(QObject *obj, QEvent *event)
 void Widget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
+    if(this->backgroundImg == NULL) return;
+    painter.drawPixmap(0,0,this->backgroundImg->width(), this->backgroundImg->height(), QPixmap::fromImage(*backgroundImg));
     if(this->HeroLoc == NULL || this->Hero == NULL) return;
     painter.drawPixmap(this->HeroLoc->x(),this->HeroLoc->y(),
                        this->HeroLoc->width(),this->HeroLoc->height(), *this->Hero);
+    if(this->EnemyHead == NULL) return;
+    Eair *eh = this->EnemyHead;
+    while(eh != NULL)
+    {
+        painter.drawPixmap(eh->rect.x(), eh->rect.y(), eh->rect.width(), eh->rect.height(), *this->EnemyGraph);
+        eh = eh->next;
+    }
 }
 
+
+int GenerateTimerID, EnemyMoveTimerID;
 void Widget::play()
 {
-    plane Plane(400, 800);
+    repaint();
+    Plane.init(400, 800);
+    Enemy.init();
+    this->EnemyGraph = Enemy.EnemyGraph;
     this->HeroLoc = Plane.MyLoc;
     this->Hero = Plane.MyPlane;
+    GenerateTimerID = startTimer(1500);
+    EnemyMoveTimerID = startTimer(500);
     MSG msg;
     while (1)
     {
@@ -172,14 +198,45 @@ void Widget::play()
                 default: break;
                 }
             }
-            repaint();
+            update();
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
         else
         {
-
+            if(0 == Enemy.check(Plane.MyLoc->x(), Plane.MyLoc->y()))
+            {
+                this->Hero = NULL;
+                this->HeroLoc = NULL;
+                Plane.destroyed();
+                while(Enemy.count > 0)
+                    Enemy.destroyed(0);
+                this->EnemyHead = NULL;
+                break;
+            }
         }
     }
+    killTimer(GenerateTimerID);
+    killTimer(EnemyMoveTimerID);
+    char gameInfo[20];
+    sprintf(gameInfo, "你的分数是%d", Plane.score);
+    QString buffer(gameInfo);
+    QMessageBox::information(this, "游戏结束", buffer);
     returnMainpage();
 }
+
+void Widget::timerEvent(QTimerEvent *t)
+{
+    if(pauseState) return;
+    srand(time(0));
+    if(t->timerId() == GenerateTimerID)
+    {
+        this->EnemyHead = Enemy.head = Enemy.create((rand() % 9) * 50 + 25);
+    }
+    else if(t->timerId() == EnemyMoveTimerID)
+    {
+        this->EnemyHead = Enemy.head = Enemy.move();
+    }
+    update();
+}
+

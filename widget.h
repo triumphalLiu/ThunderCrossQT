@@ -1,6 +1,6 @@
 #ifndef WIDGET_H
 #define WIDGET_H
-
+#include "common.h"
 #include <QWidget>
 #include <QDebug>
 #include <QEvent>
@@ -43,12 +43,16 @@ private:
     QImage *sndoffImg;
     QSound *sound;
     bool soundState;
+    bool pauseState = 0;
     QRect *HeroLoc = NULL;
     QPixmap *Hero = NULL;
+    Eair *EnemyHead = NULL;
+    QPixmap *EnemyGraph = NULL;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);
     void paintEvent(QPaintEvent *);
+    void timerEvent(QTimerEvent *t);
 };
 
 #endif // WIDGET_H

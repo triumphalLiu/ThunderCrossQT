@@ -22,7 +22,7 @@ void plane::destroyed()
     delete MyPlane;
 }
 
-plane::plane(int X, int Y)
+void plane::init(int X, int Y)
 {
     level = 1;
     score = 0;
@@ -33,6 +33,11 @@ plane::plane(int X, int Y)
     MyLoc->setWidth(100);
     MyLoc->setHeight(100);
     MyPlane->load("res/hero.png");
+}
+
+plane::plane()
+{
+
 }
 
 plane::~plane()

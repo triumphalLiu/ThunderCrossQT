@@ -5,8 +5,9 @@
 class plane
 {
 public:
-    plane(int X, int Y);
+    plane();
     ~plane();
+    void init(int X, int Y);
     int score;
     int level;
     void destroyed();
