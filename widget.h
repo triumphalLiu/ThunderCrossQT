@@ -41,6 +41,9 @@ private:
     QImage *pauseImg;
     QImage *sndonImg;
     QImage *sndoffImg;
+    QImage *copyrightImg;
+    QImage *helpImg;
+    QImage *helppageImg;
     QSound *sound;
     bool soundState;
     bool pauseState = 0;
@@ -50,6 +53,7 @@ private:
     QPixmap *EnemyGraph = NULL;
     Bair *BulletHead = NULL;
     QPixmap *BulletGraph = NULL;
+    int GenerateTimerID, EnemyMoveTimerID, BulletMoveTimerID;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);

@@ -26,11 +26,11 @@ Eair *enemy::move()
     int  i = 0;
     while (p != NULL)
     {
-        p->rect.setY(p->rect.y() + 25);
-        p->rect.setWidth(50);
-        p->rect.setHeight(50);
+        p->rect.setY(p->rect.y() + SizeEnemy/2);
+        p->rect.setWidth(SizeEnemy);
+        p->rect.setHeight(SizeEnemy);
         Eair *nxt = p->next;
-        if (p->rect.y() > 800)
+        if (p->rect.y() > (SizeGameY - SizeHero))
         {
             head = enemy::destroyed(i);
             i--;
@@ -76,8 +76,8 @@ int enemy::check(int x, int y)
     Eair *p = head;
     while (p != NULL)
     {
-        if (p->rect.y() >= 800 || (p->rect.x() > x && p->rect.x() < x + 100 &&
-            p->rect.y() + 50 > y && p->rect.y() + 50 < y + 100))
+        if (p->rect.y() >= (SizeGameY - SizeHero) || (p->rect.x() > x && p->rect.x() < x + SizeHero &&
+            p->rect.y() + SizeEnemy > y && p->rect.y() + SizeEnemy < y + SizeHero))
             return 0;
         p = p->next;
     }

@@ -7,13 +7,13 @@ void plane::move(int key)
 {
     switch (key)
     {
-    case 87: if (MyLoc->y() > 100) MyLoc->setY(MyLoc->y() - 100); break; //up
-    case 83: if (MyLoc->y() < 800) MyLoc->setY(MyLoc->y() + 100); break; //down
-    case 65:  if (MyLoc->x() >= 50 ) MyLoc->setX(MyLoc->x() - 50); break; //left
-    case 68: if (MyLoc->x() < 400) MyLoc->setX(MyLoc->x() + 50); break;//right
+    case 87: if (MyLoc->y() > SizeHero) MyLoc->setY(MyLoc->y() - SizeHero); break; //up
+    case 83: if (MyLoc->y() < (SizeGameY -  SizeHero)) MyLoc->setY(MyLoc->y() + SizeHero); break; //down
+    case 65:  if (MyLoc->x() >= SizeEnemy ) MyLoc->setX(MyLoc->x() - SizeEnemy); break; //left
+    case 68: if (MyLoc->x() < (SizeGameX -  SizeHero)) MyLoc->setX(MyLoc->x() + SizeEnemy); break;//right
     }
-    MyLoc->setWidth(100);
-    MyLoc->setHeight(100);
+    MyLoc->setWidth(SizeHero);
+    MyLoc->setHeight(SizeHero);
 }
 
 void plane::destroyed()
@@ -30,8 +30,8 @@ void plane::init(int X, int Y)
     MyPlane = new QPixmap;
     MyLoc->setX(X);
     MyLoc->setY(Y);
-    MyLoc->setWidth(100);
-    MyLoc->setHeight(100);
+    MyLoc->setWidth(SizeHero);
+    MyLoc->setHeight(SizeHero);
     MyPlane->load("res/hero.png");
 }
 

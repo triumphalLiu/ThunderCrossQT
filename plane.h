@@ -2,6 +2,7 @@
 #define PLANE_H
 #include <QPixmap>
 #include <QRect>
+#include "common.h"
 class plane
 {
 public:

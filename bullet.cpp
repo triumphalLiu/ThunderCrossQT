@@ -55,11 +55,11 @@ Bair *bullet::move()
     while (p != NULL)
     {
         if (p->flag == 1)
-            p->rect.setY(p->rect.y() - 11);
+            p->rect.setY(p->rect.y() - SizeBulletY);
         else if (p->flag == 0)
-            p->rect.setY(p->rect.y() + 11);
+            p->rect.setY(p->rect.y() + SizeBulletY);
         Bair *n = p->next;
-        if (p->rect.y() <= 100 || p->rect.y() >= 900)
+        if (p->rect.y() <= SizeHero || p->rect.y() >= SizeGameY)
         {
             head = bullet::del(p);
             if (head == NULL)
@@ -72,20 +72,18 @@ Bair *bullet::move()
 
 bool bullet::check(int x, int y, int flag)  // dead=0
 {
-    qDebug() << x << y;
     Bair *p = head;
     while (p != NULL)
     {
         Bair *nxt = p->next;
         if (p->flag | flag)
         {
-            qDebug() << "*" << p->rect.x() << p->rect.y();
-            if (flag == 0 && (p->rect.x() >= x && p->rect.x() <= x + 50) && (p->rect.y() >= y && p->rect.y() <= y + 50))
+            if (flag == 0 && (p->rect.x() >= x && p->rect.x() <= x + SizeEnemy) && (p->rect.y() >= y && p->rect.y() <= y + SizeEnemy))
             {
                 head = bullet::del(p);
                 return 0;
             }
-            else if (flag == 1 && (p->rect.x() >= x && p->rect.x() <= x + 100) && (p->rect.y() >= y && p->rect.y() <= y + 100))
+            else if (flag == 1 && (p->rect.x() >= x && p->rect.x() <= x + SizeHero) && (p->rect.y() >= y && p->rect.y() <= y + SizeHero))
             {
                 head = bullet::del(p);
                 return 0;

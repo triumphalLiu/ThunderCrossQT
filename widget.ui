@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>560</y>
+     <y>510</y>
      <width>300</width>
      <height>41</height>
     </rect>
@@ -49,7 +49,7 @@
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>640</y>
+     <y>690</y>
      <width>300</width>
      <height>41</height>
     </rect>
@@ -110,6 +110,69 @@
     <string/>
    </property>
   </widget>
+  <widget class="QLabel" name="copyright_label">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>630</y>
+     <width>300</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="help_label">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>570</y>
+     <width>300</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="helppage_label">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>420</y>
+     <width>350</width>
+     <height>389</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QLabel" name="author_label">
+   <property name="geometry">
+    <rect>
+     <x>390</x>
+     <y>870</y>
+     <width>121</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>作者:liu@triumphal.cn</string>
+   </property>
+  </widget>
+  <zorder>background_label</zorder>
+  <zorder>helppage_label</zorder>
+  <zorder>start_label</zorder>
+  <zorder>exit_label</zorder>
+  <zorder>title_label_1</zorder>
+  <zorder>title_label_2</zorder>
+  <zorder>pause_label</zorder>
+  <zorder>sound_label</zorder>
+  <zorder>copyright_label</zorder>
+  <zorder>help_label</zorder>
+  <zorder>author_label</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

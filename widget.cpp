@@ -1,13 +1,12 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include <windows.h>
 #include "plane.h"
 #include "enemy.h"
 #include "bullet.h"
 #include <ctime>
 #include <cstdlib>
 #include <cstring>
-#include <QMessageBox>
+#include <windows.h>
 
 plane Plane;
 enemy Enemy;
@@ -24,13 +23,15 @@ Widget::Widget(QWidget *parent) :
     //加载图片
     loadPictures();
     //加载声音
-    sound = new QSound(""/*"res/music.wav"*/, this);
+    sound = new QSound("res/music.wav", this);
     sound->play();
     soundState = 1;
     //加载label响应动作
     ui->start_label->installEventFilter(this);
     ui->exit_label->installEventFilter(this);
     ui->sound_label->installEventFilter(this);
+    ui->copyright_label->installEventFilter(this);
+    ui->help_label->installEventFilter(this);
 }
 
 Widget::~Widget()
@@ -48,6 +49,9 @@ void Widget::loadPictures()
     pauseImg = new QImage;
     sndoffImg = new QImage;
     sndonImg = new QImage;
+    copyrightImg = new QImage;
+    helpImg = new QImage;
+    helppageImg = new QImage;
     backgroundImg->load("res/background.png");
     ui->background_label->setPixmap(QPixmap::fromImage(*backgroundImg));
     gameImg1->load("res/shoot_copyright.png");
@@ -62,6 +66,11 @@ void Widget::loadPictures()
     sndonImg->load("res/sndstart.png");
     sndoffImg->load("res/sndpause.png");
     ui->sound_label->setPixmap(QPixmap::fromImage(*sndoffImg));
+    copyrightImg->load("res/watchsc.png");
+    ui->copyright_label->setPixmap(QPixmap::fromImage(*copyrightImg));
+    helpImg->load("res/help.png");
+    ui->help_label->setPixmap(QPixmap::fromImage(*helpImg));
+    helppageImg->load("res/helppage.png");
 }
 
 void Widget::startGame()
@@ -71,6 +80,13 @@ void Widget::startGame()
     ui->title_label_2->clear();
     ui->start_label->clear();
     ui->exit_label->clear();
+    ui->copyright_label->clear();
+    ui->help_label->clear();
+    ui->author_label->clear();
+    ui->start_label->removeEventFilter(this);
+    ui->exit_label->removeEventFilter(this);
+    ui->copyright_label->removeEventFilter(this);
+    ui->help_label->removeEventFilter(this);
     play();
 }
 
@@ -85,6 +101,9 @@ void Widget::exitGame()
     delete sndoffImg;
     delete sndonImg;
     delete sound;
+    delete copyrightImg;
+    delete helpImg;
+    delete helppageImg;
     exit(0);
 }
 
@@ -121,71 +140,29 @@ void Widget::returnMainpage()
     ui->title_label_2->setPixmap(QPixmap::fromImage(*gameImg2));
     ui->start_label->setPixmap(QPixmap::fromImage(*startImg));
     ui->exit_label->setPixmap(QPixmap::fromImage(*exitImg));
+    ui->copyright_label->setPixmap(QPixmap::fromImage(*copyrightImg));
+    ui->help_label->setPixmap(QPixmap::fromImage(*helpImg));
+    ui->author_label->setText("作者:liu@triumphal.cn");
+    ui->start_label->installEventFilter(this);
+    ui->exit_label->installEventFilter(this);
+    ui->copyright_label->installEventFilter(this);
+    ui->help_label->installEventFilter(this);
 }
 
-bool Widget::eventFilter(QObject *obj, QEvent *event)
-{
-    if(obj == ui->exit_label && event->type() == QEvent::MouseButtonPress)
-        exitGame();
-    else if(obj == ui->start_label && event->type() == QEvent::MouseButtonPress)
-        startGame();
-    else if(obj == ui->sound_label && event->type() == QEvent::MouseButtonPress)
-    {
-        if(soundState == 1)
-        {
-            sound->stop();
-            ui->sound_label->clear();
-            ui->sound_label->setPixmap(QPixmap::fromImage(*sndonImg));
-        }
-        else
-        {
-            sound->play();
-            ui->sound_label->clear();
-            ui->sound_label->setPixmap(QPixmap::fromImage(*sndoffImg));
-        }
-        soundState = !soundState;
-    }
-    return QWidget::eventFilter(obj, event);
-}
-
-void Widget::paintEvent(QPaintEvent *)
-{
-    QPainter painter(this);
-    if(this->backgroundImg == NULL) return;
-    painter.drawPixmap(0,0,this->backgroundImg->width(), this->backgroundImg->height(), QPixmap::fromImage(*backgroundImg));
-    if(this->HeroLoc == NULL || this->Hero == NULL) return;
-    painter.drawPixmap(this->HeroLoc->x(),this->HeroLoc->y(),
-                       this->HeroLoc->width(),this->HeroLoc->height(), *this->Hero);
-    if(this->EnemyGraph == NULL) return;
-    Eair *eh = this->EnemyHead;
-    while(eh != NULL)
-    {
-        painter.drawPixmap(eh->rect.x(), eh->rect.y(), eh->rect.width(), eh->rect.height(), *this->EnemyGraph);
-        eh = eh->next;
-    }
-    if(this->EnemyGraph == NULL) return;
-    Bair *bh = this->BulletHead;
-    while(bh != NULL)
-    {
-        painter.drawPixmap(bh->rect.x(), bh->rect.y(), bh->rect.width(), bh->rect.height(), *this->BulletGraph);
-        bh = bh->next;
-    }
-}
-
-
-int GenerateTimerID, EnemyMoveTimerID, BulletMoveTimerID;
+int born_time[6] = {-1, 1500, 1200, 900, 600, 300};
+int move_time[6] = {-1, 500, 400, 300, 200, 100};
 void Widget::play()
 {
     repaint();
-    Plane.init(400, 800);
+    Plane.init((SizeGameX -  SizeHero), (SizeGameY -  SizeHero));
     Enemy.init();
     Bullet.init();
     this->BulletGraph = Bullet.BulletGraph;
     this->EnemyGraph = Enemy.EnemyGraph;
     this->HeroLoc = Plane.MyLoc;
     this->Hero = Plane.MyPlane;
-    GenerateTimerID = startTimer(1500);
-    EnemyMoveTimerID = startTimer(500);
+    GenerateTimerID = startTimer(born_time[Plane.level]);
+    EnemyMoveTimerID = startTimer(move_time[Plane.level]);
     BulletMoveTimerID = startTimer(2);
     MSG msg;
     while (1)
@@ -205,7 +182,7 @@ void Widget::play()
                 case 'D':
                 case 'S':Plane.move(key);
                          break;
-                case 'H':this->BulletHead = Bullet.head = Bullet.add(Plane.MyLoc->x() + (100 + 5 / 2) / 2, Plane.MyLoc->y() - 11, 1);
+                case 'H':this->BulletHead = Bullet.head = Bullet.add(Plane.MyLoc->x() + (SizeHero + SizeBulletX / 2) / 2, Plane.MyLoc->y() - SizeBulletY, 1);
                          break;
                 case 'P':pauseGame();
                          break;
@@ -215,6 +192,15 @@ void Widget::play()
             update();
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+        }
+        int lastlevel = Plane.level;
+        Plane.level = (Plane.level < 5) ? Plane.score / 10 + 1 : 5;
+        if(lastlevel != Plane.level)
+        {
+            killTimer(GenerateTimerID);
+            killTimer(EnemyMoveTimerID);
+            GenerateTimerID = startTimer(born_time[Plane.level]);
+            EnemyMoveTimerID = startTimer(move_time[Plane.level]);
         }
         if(0 == Enemy.check(Plane.MyLoc->x(), Plane.MyLoc->y()))
         {
@@ -256,7 +242,7 @@ void Widget::timerEvent(QTimerEvent *t)
     srand(time(0));
     if(t->timerId() == GenerateTimerID)
     {
-        this->EnemyHead = Enemy.head = Enemy.create((rand() % 9) * 50 + 25);
+        this->EnemyHead = Enemy.head = Enemy.create((rand() % 9) * SizeEnemy + SizeEnemy/2);
     }
     else if(t->timerId() == EnemyMoveTimerID)
     {
@@ -269,3 +255,82 @@ void Widget::timerEvent(QTimerEvent *t)
     update();
 }
 
+bool Widget::eventFilter(QObject *obj, QEvent *event)
+{
+    if(obj == ui->exit_label && event->type() == QEvent::MouseButtonPress)
+        exitGame();
+    else if(obj == ui->start_label && event->type() == QEvent::MouseButtonPress)
+        startGame();
+    else if(obj == ui->sound_label && event->type() == QEvent::MouseButtonPress)
+    {
+        if(soundState == 1)
+        {
+            sound->stop();
+            ui->sound_label->clear();
+            ui->sound_label->setPixmap(QPixmap::fromImage(*sndonImg));
+        }
+        else
+        {
+            sound->play();
+            ui->sound_label->clear();
+            ui->sound_label->setPixmap(QPixmap::fromImage(*sndoffImg));
+        }
+        soundState = !soundState;
+    }
+    else if(obj == ui->copyright_label && event->type() == QEvent::MouseButtonPress)
+    {
+        ShellExecute(NULL, TEXT("open"), TEXT("https://github.com/triumphalLiu/ThunderCrossQT"),
+            NULL, NULL, SW_MINIMIZE);
+    }
+    else if(obj == ui->help_label && event->type() == QEvent::MouseButtonPress)
+    {
+        ui->start_label->clear();
+        ui->exit_label->clear();
+        ui->copyright_label->clear();
+        ui->help_label->clear();
+        ui->helppage_label->setPixmap(QPixmap::fromImage(*helppageImg));
+        ui->helppage_label->installEventFilter(this);
+        ui->start_label->removeEventFilter(this);
+        ui->exit_label->removeEventFilter(this);
+        ui->copyright_label->removeEventFilter(this);
+        ui->help_label->removeEventFilter(this);
+    }
+    else if(obj == ui->helppage_label && event->type() == QEvent::MouseButtonPress)
+    {
+        ui->helppage_label->clear();
+        ui->start_label->setPixmap(QPixmap::fromImage(*startImg));
+        ui->exit_label->setPixmap(QPixmap::fromImage(*exitImg));
+        ui->copyright_label->setPixmap(QPixmap::fromImage(*copyrightImg));
+        ui->help_label->setPixmap(QPixmap::fromImage(*helpImg));
+        ui->helppage_label->removeEventFilter(this);
+        ui->start_label->installEventFilter(this);
+        ui->exit_label->installEventFilter(this);
+        ui->copyright_label->installEventFilter(this);
+        ui->help_label->installEventFilter(this);
+    }
+    return QWidget::eventFilter(obj, event);
+}
+
+void Widget::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    if(this->backgroundImg == NULL) return;
+    painter.drawPixmap(0,0,this->backgroundImg->width(), this->backgroundImg->height(), QPixmap::fromImage(*backgroundImg));
+    if(this->HeroLoc == NULL || this->Hero == NULL) return;
+    painter.drawPixmap(this->HeroLoc->x(),this->HeroLoc->y(),
+                       this->HeroLoc->width(),this->HeroLoc->height(), *this->Hero);
+    if(this->EnemyGraph == NULL) return;
+    Eair *eh = this->EnemyHead;
+    while(eh != NULL)
+    {
+        painter.drawPixmap(eh->rect.x(), eh->rect.y(), eh->rect.width(), eh->rect.height(), *this->EnemyGraph);
+        eh = eh->next;
+    }
+    if(this->EnemyGraph == NULL) return;
+    Bair *bh = this->BulletHead;
+    while(bh != NULL)
+    {
+        painter.drawPixmap(bh->rect.x(), bh->rect.y(), bh->rect.width(), bh->rect.height(), *this->BulletGraph);
+        bh = bh->next;
+    }
+}

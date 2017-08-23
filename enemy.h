@@ -8,16 +8,17 @@ class enemy
 public:
     enemy();
     ~enemy();
-    void init();
-    Eair *head;
-    int count;
-    int getinfo(int, int);
     bool GG;
+    int count;
     Eair *create(int);
-    Eair *destroyed(int);
     Eair *move();
+    Eair *destroyed(int);
+    Eair *head;
+    void init();
     int check(int x, int y);
+    int getinfo(int, int);
     QPixmap *EnemyGraph;
+
 private:
 
 };
