@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QEvent>
 #include <QImage>
+#include <QIcon>
 #include <QLabel>
 #include <QPixmap>
 #include <QPainter>

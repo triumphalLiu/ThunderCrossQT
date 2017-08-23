@@ -19,7 +19,9 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     //禁用大小调整
     setWindowFlags(windowFlags()& ~Qt::WindowMaximizeButtonHint);
+    setWindowFlags(windowFlags()& ~Qt::WindowCloseButtonHint);
     setFixedSize(this->width(), this->height());
+    setWindowIcon(QIcon("res/icon.ico"));
     //加载图片
     loadPictures();
     //加载声音
