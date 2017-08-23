@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "plane.h"
 #include "enemy.h"
+#include "bullet.h"
 #include <ctime>
 #include <cstdlib>
 #include <cstring>
@@ -10,6 +11,7 @@
 
 plane Plane;
 enemy Enemy;
+bullet Bullet;
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -154,27 +156,37 @@ void Widget::paintEvent(QPaintEvent *)
     if(this->HeroLoc == NULL || this->Hero == NULL) return;
     painter.drawPixmap(this->HeroLoc->x(),this->HeroLoc->y(),
                        this->HeroLoc->width(),this->HeroLoc->height(), *this->Hero);
-    if(this->EnemyHead == NULL) return;
+    if(this->EnemyGraph == NULL) return;
     Eair *eh = this->EnemyHead;
     while(eh != NULL)
     {
         painter.drawPixmap(eh->rect.x(), eh->rect.y(), eh->rect.width(), eh->rect.height(), *this->EnemyGraph);
         eh = eh->next;
     }
+    if(this->EnemyGraph == NULL) return;
+    Bair *bh = this->BulletHead;
+    while(bh != NULL)
+    {
+        painter.drawPixmap(bh->rect.x(), bh->rect.y(), bh->rect.width(), bh->rect.height(), *this->BulletGraph);
+        bh = bh->next;
+    }
 }
 
 
-int GenerateTimerID, EnemyMoveTimerID;
+int GenerateTimerID, EnemyMoveTimerID, BulletMoveTimerID;
 void Widget::play()
 {
     repaint();
     Plane.init(400, 800);
     Enemy.init();
+    Bullet.init();
+    this->BulletGraph = Bullet.BulletGraph;
     this->EnemyGraph = Enemy.EnemyGraph;
     this->HeroLoc = Plane.MyLoc;
     this->Hero = Plane.MyPlane;
     GenerateTimerID = startTimer(1500);
     EnemyMoveTimerID = startTimer(500);
+    BulletMoveTimerID = startTimer(2);
     MSG msg;
     while (1)
     {
@@ -193,6 +205,8 @@ void Widget::play()
                 case 'D':
                 case 'S':Plane.move(key);
                          break;
+                case 'H':this->BulletHead = Bullet.head = Bullet.add(Plane.MyLoc->x() + (100 + 5 / 2) / 2, Plane.MyLoc->y() - 11, 1);
+                         break;
                 case 'P':pauseGame();
                          break;
                 default: break;
@@ -202,24 +216,35 @@ void Widget::play()
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        else
+        if(0 == Enemy.check(Plane.MyLoc->x(), Plane.MyLoc->y()))
         {
-            if(0 == Enemy.check(Plane.MyLoc->x(), Plane.MyLoc->y()))
+            this->Hero = NULL;
+            this->HeroLoc = NULL;
+            Plane.destroyed();
+            while(Enemy.count > 0)
+                Enemy.destroyed(0);
+            this->EnemyHead = NULL;
+            break;
+        }
+        for (int i = 0; i < Enemy.count; ++i)
+        {
+            int x = Enemy.getinfo(i, 0);
+            int y = Enemy.getinfo(i, 1);
+            if (x != -1 && 0 == Bullet.check(x, y, 0))
             {
-                this->Hero = NULL;
-                this->HeroLoc = NULL;
-                Plane.destroyed();
-                while(Enemy.count > 0)
-                    Enemy.destroyed(0);
-                this->EnemyHead = NULL;
-                break;
+                this->EnemyHead = Enemy.head = Enemy.destroyed(i);
+                --i;
+                Plane.score++;
             }
         }
+        if(Enemy.GG) break;
+        update();
     }
     killTimer(GenerateTimerID);
     killTimer(EnemyMoveTimerID);
+    killTimer(BulletMoveTimerID);
     char gameInfo[20];
-    sprintf(gameInfo, "你的分数是%d", Plane.score);
+    sprintf(gameInfo, "*你的分数是%d*\n*最高关卡是%d*", Plane.score, Plane.level);
     QString buffer(gameInfo);
     QMessageBox::information(this, "游戏结束", buffer);
     returnMainpage();
@@ -236,6 +261,10 @@ void Widget::timerEvent(QTimerEvent *t)
     else if(t->timerId() == EnemyMoveTimerID)
     {
         this->EnemyHead = Enemy.head = Enemy.move();
+    }
+    else if(t->timerId() == BulletMoveTimerID)
+    {
+        this->BulletHead = Bullet.head = Bullet.move();
     }
     update();
 }

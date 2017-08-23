@@ -48,6 +48,8 @@ private:
     QPixmap *Hero = NULL;
     Eair *EnemyHead = NULL;
     QPixmap *EnemyGraph = NULL;
+    Bair *BulletHead = NULL;
+    QPixmap *BulletGraph = NULL;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);

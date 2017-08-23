@@ -12,6 +12,7 @@ public:
     Eair *head;
     int count;
     int getinfo(int, int);
+    bool GG;
     Eair *create(int);
     Eair *destroyed(int);
     Eair *move();

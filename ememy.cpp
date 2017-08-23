@@ -34,6 +34,7 @@ Eair *enemy::move()
         {
             head = enemy::destroyed(i);
             i--;
+            GG = 1;
         }
         p = nxt;
         ++i;
@@ -89,6 +90,7 @@ void enemy::init()
     count = 0;
     EnemyGraph = new QPixmap;
     EnemyGraph->load("res/enemy.png");
+    GG = 0;
 }
 
 enemy::enemy()

@@ -8,4 +8,9 @@ struct Eair {
     Eair *next;
 };
 
+struct Bair {
+    QRect rect;
+    int flag;
+    Bair *next;
+};
 #endif // COMMON_H

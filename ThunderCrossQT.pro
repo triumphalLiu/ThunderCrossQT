@@ -28,13 +28,15 @@ SOURCES += \
         main.cpp \
         widget.cpp \
     plane.cpp \
-    ememy.cpp
+    ememy.cpp \
+    bullet.cpp
 
 HEADERS += \
         widget.h \
     plane.h \
     enemy.h \
-    common.h
+    common.h \
+    bullet.h
 
 FORMS += \
         widget.ui
