@@ -153,6 +153,7 @@ void Widget::returnMainpage()
 
 int born_time[6] = {-1, 1500, 1200, 900, 600, 300};
 int move_time[6] = {-1, 500, 400, 300, 200, 100};
+int shot_time[6] = {-1, 1200, 1000, 800, 500, 200};
 void Widget::play()
 {
     repaint();
@@ -161,11 +162,13 @@ void Widget::play()
     Bullet.init();
     this->BulletGraph = Bullet.BulletGraph;
     this->EnemyGraph = Enemy.EnemyGraph;
+    this->BulletEnemyGraph = Bullet.BulletEnemyGraph;
     this->HeroLoc = Plane.MyLoc;
     this->Hero = Plane.MyPlane;
     GenerateTimerID = startTimer(born_time[Plane.level]);
     EnemyMoveTimerID = startTimer(move_time[Plane.level]);
-    BulletMoveTimerID = startTimer(2);
+    BulletMoveTimerID = startTimer(10);
+    EnemyShotTimerID = startTimer(shot_time[Plane.level]);
     MSG msg;
     while (1)
     {
@@ -203,6 +206,7 @@ void Widget::play()
             killTimer(EnemyMoveTimerID);
             GenerateTimerID = startTimer(born_time[Plane.level]);
             EnemyMoveTimerID = startTimer(move_time[Plane.level]);
+            EnemyShotTimerID = startTimer(shot_time[Plane.level]);
         }
         if(0 == Enemy.check(Plane.MyLoc->x(), Plane.MyLoc->y()))
         {
@@ -214,6 +218,10 @@ void Widget::play()
             this->EnemyHead = NULL;
             break;
         }
+
+        if (0 == Bullet.check(Plane.MyLoc->x(), Plane.MyLoc->y(), 1))
+            break;
+
         for (int i = 0; i < Enemy.count; ++i)
         {
             int x = Enemy.getinfo(i, 0);
@@ -231,6 +239,7 @@ void Widget::play()
     killTimer(GenerateTimerID);
     killTimer(EnemyMoveTimerID);
     killTimer(BulletMoveTimerID);
+    killTimer(EnemyShotTimerID);
     char gameInfo[20];
     sprintf(gameInfo, "*你的分数是%d*\n*最高关卡是%d*", Plane.score, Plane.level);
     QString buffer(gameInfo);
@@ -244,7 +253,7 @@ void Widget::timerEvent(QTimerEvent *t)
     srand(time(0));
     if(t->timerId() == GenerateTimerID)
     {
-        this->EnemyHead = Enemy.head = Enemy.create((rand() % 9) * SizeEnemy + SizeEnemy/2);
+        this->EnemyHead = Enemy.head = Enemy.create(((rand() * rand()) % 9) * SizeEnemy + SizeEnemy/2);
     }
     else if(t->timerId() == EnemyMoveTimerID)
     {
@@ -253,6 +262,15 @@ void Widget::timerEvent(QTimerEvent *t)
     else if(t->timerId() == BulletMoveTimerID)
     {
         this->BulletHead = Bullet.head = Bullet.move();
+    }
+    else if(t->timerId() == EnemyShotTimerID)
+    {
+        Eair *p = Enemy.head;
+        while(p != NULL)
+        {
+            Bullet.add(p->rect.x() + (SizeEnemy + SizeBulletX / 2) / 2, p->rect.y() + p->rect.height() + SizeBulletY, 0);
+            p = p->next;
+        }
     }
     update();
 }
@@ -332,7 +350,10 @@ void Widget::paintEvent(QPaintEvent *)
     Bair *bh = this->BulletHead;
     while(bh != NULL)
     {
-        painter.drawPixmap(bh->rect.x(), bh->rect.y(), bh->rect.width(), bh->rect.height(), *this->BulletGraph);
+        if(bh->flag == 1)
+            painter.drawPixmap(bh->rect.x(), bh->rect.y(), bh->rect.width(), bh->rect.height(), *this->BulletGraph);
+        else
+            painter.drawPixmap(bh->rect.x(), bh->rect.y(), bh->rect.width(), bh->rect.height(), *this->BulletEnemyGraph);
         bh = bh->next;
     }
 }

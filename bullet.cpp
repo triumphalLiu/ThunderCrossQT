@@ -6,6 +6,8 @@ void bullet::init()
     head = NULL;
     BulletGraph = new QPixmap;
     BulletGraph->load("res/bullet.png");
+    BulletEnemyGraph = new QPixmap;
+    BulletEnemyGraph->load("res/bullet_enemy.png");
 }
 
 Bair *bullet::add(int x, int y, int flag)
@@ -83,7 +85,7 @@ bool bullet::check(int x, int y, int flag)  // dead=0
                 head = bullet::del(p);
                 return 0;
             }
-            else if (flag == 1 && (p->rect.x() >= x && p->rect.x() <= x + SizeHero) && (p->rect.y() >= y && p->rect.y() <= y + SizeHero))
+            else if (flag == 1 && (p->rect.x() > x && p->rect.x() < x + SizeHero) && (p->rect.y() > y && p->rect.y() < y + SizeHero))
             {
                 head = bullet::del(p);
                 return 0;

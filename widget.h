@@ -54,7 +54,8 @@ private:
     QPixmap *EnemyGraph = NULL;
     Bair *BulletHead = NULL;
     QPixmap *BulletGraph = NULL;
-    int GenerateTimerID, EnemyMoveTimerID, BulletMoveTimerID;
+    QPixmap *BulletEnemyGraph = NULL;
+    int GenerateTimerID, EnemyMoveTimerID, BulletMoveTimerID, EnemyShotTimerID;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev);

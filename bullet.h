@@ -15,6 +15,7 @@ public:
     Bair *move();
     Bair *del(Bair *);
     QPixmap *BulletGraph;
+    QPixmap *BulletEnemyGraph;
 private:
 
 };
